@@ -11,7 +11,7 @@ class Wallet(models.Model):
     public_key = models.CharField(max_length=255)
     
     def generatePublicKey(self):
-        # SHA256 ile punlic key olusturulacak.
+        # SHA256 ile public key olusturulacak.
         return "whichCoin-PublicKeyGenerator"
     
     def save(self,*args,**kwargs):
