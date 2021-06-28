@@ -19,19 +19,18 @@ class Wallet(models.Model):
 
     def generatePublicKey(self):
         # SHA256 ile public key olusturulacak.
-        self.name = self.name.strip()
+        word = self.name.strip()
 
-        if (re.search(r'^ssh-(?:rsa|dss) ', self.name)):
-            self.name = self.name.split(None, 2)[1]
+        if (re.search(r'^ssh-(?:rsa|dss) ', word)):
+            word = word.split(None, 2)[1]
 
         try:
-            self.name = bytes(self.name, 'ascii')
+            word = bytes(word, 'ascii')
         except TypeError:
-            self.name = bytes(self.name)
+            word = bytes(word)
 
-        digest = hashlib.sha256(binascii.a2b_base64(self.name)).digest()
-        encoded = base64.b64encode(digest).rstrip(
-            b'=')  # ssh-keygen strips this
+        digest = hashlib.sha256(binascii.a2b_base64(word)).digest()
+        encoded = base64.b64encode(digest).rstrip(b'=')  # ssh-keygen strips this
 
         return encoded
 
