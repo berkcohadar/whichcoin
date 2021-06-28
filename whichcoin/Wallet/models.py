@@ -15,24 +15,25 @@ class Wallet(models.Model):
     name = models.CharField(max_length=31)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, null=False, blank=False)
-    public_key = models.CharField(max_length=255)
+    public_key = models.CharField(max_length=255, editable=False)
 
     def generatePublicKey(self):
         # SHA256 ile public key olusturulacak.
         word = self.name.strip()
 
-        if (re.search(r'^ssh-(?:rsa|dss) ', word)):
-            word = word.split(None, 2)[1]
+        # if (re.search(r'^ssh-(?:rsa|dss) ', word)):
+        #     word = word.split(None, 2)[1]
 
-        try:
-            word = bytes(word, 'ascii')
-        except TypeError:
-            word = bytes(word)
+        # try:
+        #     word = bytes(word, 'ascii')
+        # except TypeError:
+        #     word = bytes(word)
 
-        digest = hashlib.sha256(binascii.a2b_base64(word)).digest()
-        encoded = base64.b64encode(digest).rstrip(b'=')  # ssh-keygen strips this
+        # digest = hashlib.sha256(binascii.a2b_base64(word)).digest()
+        # encoded = base64.b64encode(digest).rstrip(b'=')  # ssh-keygen strips this
 
-        return encoded
+        # return encoded
+        return word
 
     def save(self, *args, **kwargs):
         if self.public_key == "":

@@ -10,4 +10,6 @@ from . import views
 
 urlpatterns = [
     path('markets/' , include('api.market.urls')),
+    path('wallets/' , include('api.wallet.urls')),
+
 ]
