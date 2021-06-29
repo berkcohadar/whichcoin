@@ -10,10 +10,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 #serializers
-from .serializers import ListWalletAPIView, WalletItemSerializer
+from .serializers import ListWalletAPIView, WalletItemSerializer, AddToWalletSerializer
 
 #models
 from Wallet.models import Wallet, WalletItem
+
+# ********  GET REQUESTS ********
 
 class AllWalletList(ListAPIView):
     queryset = Wallet.objects.all()
@@ -61,11 +63,23 @@ class WalletDetail(RetrieveUpdateAPIView):
             return Response({"Error":"There is no valid Wallet with this ID." },status=HTTP_400_BAD_REQUEST)
         return super().get(request, *args, **kwargs)
 
+# ********  POST REQUESTS ********
+
 class AddToWallet(CreateAPIView):
-    queryset = Wallet.objects.all()
+    queryset = WalletItem.objects.all()
+    serializer_class = AddToWalletSerializer #AddToWalletSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication,TokenAuthentication]
-    serializer_class = ListWalletAPIView
+
+    # def post(self, request, *args, **kwargs):
+    #     if request.user.is_authenticated:
+    #         if request.data.get("user") != request.user.id:
+    #             return Response({"Error":"You do not have a permission to make this request." },status=status.HTTP_400_BAD_REQUEST)
+    #     else:
+    #         user = User.objects.filter(username=request.data.get("customer"))
+    #         if user:
+    #             return Response({"Error":"You do not have a permission to make this request. LOGIN REQUIRED" },status=status.HTTP_400_BAD_REQUEST)
+    #     return super().post(request, *args, **kwargs)
 
 class RemoveFromWallet(RetrieveDestroyAPIView):
     queryset = Wallet.objects.all()

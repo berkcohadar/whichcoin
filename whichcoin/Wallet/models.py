@@ -52,8 +52,23 @@ class WalletItem(models.Model):
         CurrencyMarket, on_delete=models.CASCADE, null=False, blank=False)
     data_created = models.DateTimeField(
         verbose_name='wallet created', auto_now_add=True)
-    first_price = models.FloatField()
-    current_PNL = models.FloatField()
+    first_price = models.FloatField(null=True, blank=True, editable=False)
+    current_PNL = models.FloatField(null=True, blank=True, editable=False)
+
+    def set_first_price(self):
+        currency = CurrencyMarket.objects.filter(id=self.currencyMarket_id.id)[0]
+        return currency.price
+    
+    def calculate_PNL(self):
+        currency = CurrencyMarket.objects.filter(id=self.currencyMarket_id.id)[0]
+        return ((currency.price/self.first_price) - 1)*100
+
+    def save(self, *args, **kwargs):
+        if self.first_price is None: # If first_price is None, then it means we are creating the WalletItem (first addition).
+            self.first_price = self.set_first_price() # We set the first_price as currency's current price. 
+        self.current_PNL = self.calculate_PNL() # After setting the first price, we can calculate the PNL any time.
+                                                # Unlike first_price, PNL has to be calculated everytime we GET the WalletItems
+        return super(WalletItem, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.currencyMarket_id.__str__()} in {self.wallet_id.__str__()}"
