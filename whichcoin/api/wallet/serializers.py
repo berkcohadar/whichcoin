@@ -20,7 +20,7 @@ class ListWalletAPIView(serializers.ModelSerializer):
             cur.save()
         walletItems = WalletItemSerializer(queryset,many=True).data ##########
         try:
-            result = walletItems[0]
+            result = walletItems
         except:
             result = walletItems
             

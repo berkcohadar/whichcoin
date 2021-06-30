@@ -7,14 +7,10 @@ import binascii
 import base64
 
 # Create your models here.
-# import random
-# hash = random.getrandbits(256)
-
 
 class Wallet(models.Model):
     name = models.CharField(max_length=31)
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.ForeignKey( User, on_delete=models.CASCADE, null=False, blank=False)
     public_key = models.CharField(max_length=255, editable=False)
 
     def generatePublicKey(self):

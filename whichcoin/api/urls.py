@@ -11,5 +11,12 @@ from . import views
 urlpatterns = [
     path('markets/' , include('api.market.urls')),
     path('wallets/' , include('api.wallet.urls')),
-
 ]
+# www.whichcoin.com/admin
+# www.whichcoin.com/api
+# www.whichcoin.com/api/markets
+# www.whichcoin.com/api/wallets
+# www.whichcoin.com/api/wallets/all_wallets
+# www.whichcoin.com/api/wallets/wallets
+# www.whichcoin.com/api/wallets/wallets/<id>
+# www.whichcoin.com/api/wallets/add-to-wallet

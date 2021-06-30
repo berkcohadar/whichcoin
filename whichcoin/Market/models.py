@@ -48,8 +48,9 @@ class CurrencyMarket(models.Model):
         ('1','BTC'),
         ('2','ETH'),
     ]
-    market_id = models.ForeignKey(Market,on_delete=models.CASCADE,null=False,blank=False)
+    market_id = models.ForeignKey(Market,on_delete=models.CASCADE,null=False,blank=False)    
     currency_id = models.ForeignKey(Currency,on_delete=models.CASCADE,null=False,blank=False)
+
     currency_type = models.CharField(max_length=1,choices=CURRENCY_TYPES,default="0")
     price = models.FloatField()
     price_date = models.DateTimeField()
@@ -59,4 +60,4 @@ class CurrencyMarket(models.Model):
     ATH_date = models.DateTimeField()
 
     def __str__(self):
-        return f"{self.currency_id.__str__()}/{self.currency_type} on {self.market_id.__str__()}"
+        return f"{self.currency_id.__str__()}/{self.CURRENCY_TYPES[int(self.currency_type)][1]} on {self.market_id.__str__()}"

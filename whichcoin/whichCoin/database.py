@@ -1,6 +1,7 @@
 import psycopg2
 from nomics_api import get_currencies, get_market_data
 from settings import DATABASES
+from datetime import datetime
 
 class Database():
     def __init__(self, db_name, db_user, db_pw, db_host, db_port):
@@ -9,10 +10,11 @@ class Database():
         self.db_pw = db_pw
         self.db_host = db_host
         self.db_port = db_port
+        self.conn = 0
+        self.cursor = 0
 
     def connect_my_database(self):
         try:
-            psycopg2.connect()
             self.conn = psycopg2.connect(
                 database=self.db_name,
                 user=self.db_user,
@@ -27,65 +29,69 @@ class Database():
             print("Cannot connect to database. Following error occured.")
             print(e)
 
-    def add_market(self, data):
-        query = """INSERT INTO Market_market(name, total_volume, total_trades, status)
+    def insert_market(self, data):
+        query = """INSERT INTO public."Market_market"("name", "total_volume", "total_trades", "status")
                    VALUES(%s,%s,%s,%s) RETURNING id;"""
-        # instead of "id", try to use market_id, Market_market_id or Market_market_id_seq
+
         name = data["name"]
         total_volume = data["total_volume"]
         total_trades = data["total_trades"]
         status = data["status"]
 
-        connection = self.conn
-        cursor = connection.cursor()
+        # connection = self.conn
+        # cursor = connection.cursor()
 
         try:
-            cursor.execute(query, (name,
+            self.cursor.execute(query, (name,
                                    total_volume,
                                    total_trades,
                                    status))
-            market_id = cursor.fetchone()[0]
-            connection.commit()
-            cursor.close()
+            market_id = self.cursor.fetchone()[0]
+            self.conn.commit()
+            self.cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
             return error
 
         print("Market added with id:", market_id)
         return market_id
 
-    def add_currency(self, data):
-        query = """INSERT INTO Market_market(status, name, first_trade, market_cap, logo)
+    def insert_currency(self, data):
+        query = """INSERT INTO public."Market_currency"("status", "name", "first_trade", "market_cap", "logo")
                    VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
-        status = data["status"]
+        if data["status"] == "active":
+            status = '1'
+        else:
+            status = '0'
         name = data["name"]
-        first_trade = data["first_trade"]
+        first_trade = normalize_date_time(data["first_trade"])
         market_cap = data["market_cap"]
         logo = data["logo_url"]
 
-        connection = self.conn
-        cursor = connection.cursor()
+        # connection = self.conn
+        # cursor = connection.cursor()
 
         try:
-            cursor.execute(query, (status,
+            self.cursor.execute(query, (status,
                                    name,
                                    first_trade,
                                    market_cap,
                                    logo))
-            currency_id = cursor.fetchone()[0]
-            connection.commit()
-            cursor.close()
+            currency_id = self.cursor.fetchone()[0]
+            self.conn.commit()
+            self.cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
             return error
 
         print("Currency added with id:", currency_id)
         return currency_id
 
-    def add_currencymarket(self, data):
-        query = """INSERT INTO Market_market(currency_type, price, price_date, volume_24h, PNL_24h, current_ATH, ATH_date, currency_id_id, market_id_id)
+    def insert_currencymarket(self, data):
+        query = """INSERT INTO public."Market_currencymarket"("currency_type", "price", "price_date", "volume_24h", "PNL_24h", "current_ATH", "ATH_date", "currency_id_id", "market_id_id")
                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-        
         currency_type = data["currency_type"]
         price = data["price"]
         price_date = data["price_date"]
@@ -96,11 +102,11 @@ class Database():
         currency_id_id = data["currency_id_id"]
         market_id_id = data["market_id_id"]
 
-        connection = self.conn
-        cursor = connection.cursor()
+        # connection = self.conn
+        # cursor = connection.cursor()
 
         try:
-            cursor.execute(query, (currency_type,
+            self.cursor.execute(query, (currency_type,
                                    price,
                                    price_date,
                                    volume_24h,
@@ -109,17 +115,18 @@ class Database():
                                    ATH_date,
                                    currency_id_id,
                                    market_id_id))
-            currencyMarket_id = cursor.fetchone()[0]
-            connection.commit()
-            cursor.close()
+            currencyMarket_id = self.cursor.fetchone()[0]
+            self.conn.commit()
+            self.cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
             return error
 
         print("CurrencyMarket added with id:", currencyMarket_id)
         return currencyMarket_id
 
-    def update(self, data):
+    def update(self, table_name, id):
         """ 
         UPDATE table_name
             SET column_1 = %s
@@ -156,19 +163,21 @@ class Database():
         self.cursor.close()
         self.conn.close()
 
+def normalize_date_time(date):
+    return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
+    
 def normalize_market_currency_data(data):
     currency = {}
-    currency["currency_type"] = "USDT"
+    currency["currency_type"] = '0'
     currency["price"] = data["price"]
-    currency["price_date"] = data["price_date"]
+    currency["price_date"] = normalize_date_time(data["price_date"])
     currency["volume_24h"] = data["1d"]["volume"]
     currency["PNL_24h"] = data["1d"]["price_change_pct"]
     currency["current_ATH"] = data["high"]
-    currency["ATH_date"] = data["high_timestamp"]    
+    currency["ATH_date"] = normalize_date_time(data["high_timestamp"])
     return currency
 
 if __name__ == "__main__":
-    currencies = get_currencies("")
     db_name = DATABASES["default"]["NAME"]
     db_user = DATABASES["default"]["USER"]
     db_pw   = DATABASES["default"]["PASSWORD"]
@@ -178,15 +187,23 @@ if __name__ == "__main__":
     my_db = Database(db_name, db_user, db_pw, db_host, db_port)
     my_db.connect_my_database()
 
-    market = get_market_data()
-    market_id = my_db.add_market(market)
+    market = get_market_data() # market info
+    market_id = my_db.insert_market(market) # get Primary Key
+
+    currencies = get_currencies("") # currencies info (general + price)
 
     for data in currencies:
-        currency = normalize_market_currency_data(data)
-        currency_id = my_db.add_currency(currency)
-        currency["currency_id_id"] = currency_id
-        currency["market_id_id"] = market_id
-        my_db.add_currencymarket(currency)
+        try:
+            currency_id = my_db.insert_currency(data) # general info # Get Primary Key
+
+            # Construct currency_market data
+            currency = normalize_market_currency_data(data) # convert data format
+            currency["currency_id_id"] = currency_id # Add Currency Foreign Key to dictionary
+            currency["market_id_id"] = market_id    # Add Market Foreign Key to dictionary
+
+            my_db.insert_currencymarket(currency) # price info
+        except KeyError:
+            pass
 
     # EXAMPLE TEST DATABASE CONSTRUCTION 3 STEPS
     # CREATE CURRENCIES (Market_currency) {id, status, name, first_trade, market_cap, logo}
