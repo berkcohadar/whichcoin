@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [] # Allowed IPs which can make API connection with our App.
 ALLOWED_HOSTS.append("192.168.1.179")
+ALLOWED_HOSTS.append("192.168.1.2")
 
 
 # Application definition

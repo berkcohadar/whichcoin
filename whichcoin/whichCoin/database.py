@@ -48,7 +48,7 @@ class Database():
                                    status))
             market_id = self.cursor.fetchone()[0]
             self.conn.commit()
-            self.cursor.close()
+            # self.cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -80,7 +80,7 @@ class Database():
                                    logo))
             currency_id = self.cursor.fetchone()[0]
             self.conn.commit()
-            self.cursor.close()
+            # self.cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -117,7 +117,7 @@ class Database():
                                    market_id_id))
             currencyMarket_id = self.cursor.fetchone()[0]
             self.conn.commit()
-            self.cursor.close()
+            # self.cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -187,6 +187,8 @@ if __name__ == "__main__":
     my_db = Database(db_name, db_user, db_pw, db_host, db_port)
     my_db.connect_my_database()
 
+# from nomics_api import get_currencies, get_market_data
+
     market = get_market_data() # market info
     market_id = my_db.insert_market(market) # get Primary Key
 
@@ -204,6 +206,7 @@ if __name__ == "__main__":
             my_db.insert_currencymarket(currency) # price info
         except KeyError:
             pass
+    my_db.cursor.close()
 
     # EXAMPLE TEST DATABASE CONSTRUCTION 3 STEPS
     # CREATE CURRENCIES (Market_currency) {id, status, name, first_trade, market_cap, logo}

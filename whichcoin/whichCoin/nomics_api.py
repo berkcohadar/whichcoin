@@ -25,8 +25,8 @@ def get_currencies(currencies):
 
 def get_market_data():
     data = {}
-    data["name"] = "Deneme"
-    data["total_volume"] = 512
-    data["total_trades"] = 16
+    data["name"] = "Binance"
+    data["total_volume"] = 5386928326
+    data["total_trades"] = 28325699821
     data["status"] = '1'
     return data
