@@ -46,6 +46,14 @@ class WalletItemSerializer(serializers.ModelSerializer):
         except:
             result = currencies
         return result
+class CreateWalletAPIView(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = [
+            "user",
+            "name",
+        ]
+
 
 class AddToWalletSerializer(serializers.ModelSerializer):
 

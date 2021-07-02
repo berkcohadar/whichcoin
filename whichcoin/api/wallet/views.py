@@ -10,7 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 #serializers
-from .serializers import ListWalletAPIView, WalletItemSerializer, AddToWalletSerializer
+from .serializers import ListWalletAPIView, WalletItemSerializer, AddToWalletSerializer, CreateWalletAPIView
 
 #models
 from Wallet.models import Wallet, WalletItem
@@ -64,6 +64,11 @@ class WalletDetail(RetrieveUpdateAPIView):
         return super().get(request, *args, **kwargs)
 
 # ********  POST REQUESTS ********
+class CreateWallet(CreateAPIView):
+    queryset = Wallet.objects.all()
+    serializer_class = CreateWalletAPIView #AddToWalletSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication,TokenAuthentication]
 
 class AddToWallet(CreateAPIView):
     queryset = WalletItem.objects.all()

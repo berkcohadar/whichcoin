@@ -1,6 +1,6 @@
 from django.urls import path,include
 
-from .views import AllWalletList,WalletList,WalletDetail,AddToWallet
+from .views import AllWalletList,WalletList,WalletDetail,AddToWallet,CreateWallet
 
 
 urlpatterns = [
@@ -8,5 +8,7 @@ urlpatterns = [
     path('wallets/' ,  WalletList.as_view()  ,  name='wallets'),
     path('wallets/<id>/' ,  WalletDetail.as_view()  ,  name='wallet_detail'),
     path('add-to-wallet/' ,  AddToWallet.as_view()  ,  name='add_to_wallet'),
+    path('create-wallet/' ,  CreateWallet.as_view()  ,  name='create_wallet'),
+
 
 ]
