@@ -22,9 +22,7 @@ class Database():
                 host=self.db_host,
                 port=self.db_port
             )
-            # create a psycopg2 cursor that can execute queries
             self.cursor = self.conn.cursor()
-            # create a new table with a single column called "name"
         except Exception as e:
             print("Cannot connect to database. Following error occured.")
             print(e)
@@ -37,10 +35,6 @@ class Database():
         total_volume = data["total_volume"]
         total_trades = data["total_trades"]
         status = data["status"]
-
-        # connection = self.conn
-        # cursor = connection.cursor()
-
         try:
             self.cursor.execute(query, (name,
                                    total_volume,
@@ -68,9 +62,6 @@ class Database():
         first_trade = normalize_date_time(data["first_trade"])
         market_cap = data["market_cap"]
         logo = data["logo_url"]
-
-        # connection = self.conn
-        # cursor = connection.cursor()
 
         try:
             self.cursor.execute(query, (status,
@@ -101,9 +92,6 @@ class Database():
         ATH_date = data["ATH_date"]
         currency_id_id = data["currency_id_id"]
         market_id_id = data["market_id_id"]
-
-        # connection = self.conn
-        # cursor = connection.cursor()
 
         try:
             self.cursor.execute(query, (currency_type,
@@ -158,10 +146,6 @@ class Database():
             return error
 
         return query_response
-
-    def disconnect_my_database(self):
-        self.cursor.close()
-        self.conn.close()
 
 def normalize_date_time(date):
     return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
